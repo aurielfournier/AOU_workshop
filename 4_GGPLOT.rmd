@@ -1,3 +1,7 @@
+---
+output: html_document
+---
+```{r}
 ## Use Data Frames
 ## Use Factors
 ## Be Boss of your factors
@@ -7,23 +11,13 @@
 
 ## GGPLOT SECTION OF AOU WORKSHOP
 
-# first off
-# go to here - https://speakerdeck.com/jennybc/ggplot2-tutorial
-# show a few slides on the differences between latice, base and ggplot
-# talk about tidy data to review from earlier in the lesson
-
-# use install.packages() if you don't have these already
-# I apologize for not sending out this list earlier, I should have. 
-
 library(ggplot2)
 library(ggthemes)
 library(RColorBrewer)
-
-# the data we are using today is called the gapminder dataset
 gdURL <- "http://tiny.cc/gapminder"
 gDat <- read.delim(file = gdURL) 
 
-head(gDat)
+
 # we are not going to use qplot
 # we are going to dive into the real meat of ggplot
 # I find qplot REALLY confusing, and it hurts you long term
@@ -32,51 +26,43 @@ head(gDat)
 # often this is where you give it your data and start things off, but it is never where you end
 
 p <- ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
+
 ## no layers in plot
-p
+# p
 ## what we have done so far is told ggplot what data we want to use and what axis we want it on, but we haven't told it what kind of graph we want. 
 
-# we can take our graphing object p and add the kind of graph we want, (geom) in this case we want the data represented as points 
+# we can take our graphing object p and add the kind of graph we want, in this case we want the data represented as points (also called a scatterpoint)
 p + geom_point()
 
 p + geom_point() + scale_x_log10()
 
 p + geom_point(aes(color=continent)) + scale_x_log10()
 
-# the data and aesthetic inputs do not have to be in the ggplot function. If you put them there you will use them for all elements. Sometimes though you want to call from differnet datasets into different elemetns, in that case you put the data and aesthetics in that particular function (one for dots, one for lines)
-
-ggplot() +
-  geom_point(gDat, aes(x = gdpPercap, y = lifeExp, color = continent)) + scale_x_log10()
+ggplot(gDat, aes(x = gdpPercap, y = lifeExp, color = continent)) +
+  geom_point() + scale_x_log10()
 
 p <- ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10()
 
-#alpha gives you transparent points
 p + geom_point(alpha=(1/3), size=3)
 
 p + geom_point() + geom_smooth()
 # arguments se=F, lwd=number
 
-# turn on and off 
-p + geom_point() + geom_smooth(lwd = 1, se = TRUE, method = "lm")
+p + geom_point() + geom_smooth(lwd = 3, se = FALSE, method = "lm")
 # argument added = method 
 # lm = linear model
 
-# you can always add onto the aesthetics later by adding an additional aes command. 
 p + aes(color=continent)+geom_point()+geom_smooth(lwd=3, se=F)
-
 p + aes(color=continent)+geom_point()+geom_smooth(lwd=3, se=F,method="lm")
 
-# ok but that is ALOT of lines on the same graph, and is super messy. Maybe good for a first glance, but not beyond that
-# thsi is where facet wrap comes into play
-
 p + geom_point(alpha=(1/3), size=3)+facet_wrap(~continent)
-
 
 p + geom_point(alpha = (1/3), size = 3) + facet_wrap(~ continent) +
   geom_smooth(lwd = 1, se = FALSE, method="lm")
 
+
 # exercises:
-# plot lifeExp against year
+#   plot lifeExp against year
 # make mini-plots, split out by continent
 # add a fitted smooth and/or linear regression, w/ or w/o facetting
 # other ideas?
@@ -91,44 +77,36 @@ y + geom_smooth(se=FALSE, lwd=2)+geom_smooth(se=FALSE, method="lm",color="orange
 y + geom_smooth(se = FALSE, lwd = 2) +
   facet_wrap(~ continent)
 
-# ok what if we want to draw this with lines connecting the life expectancy of each country? 
 y + facet_wrap(~ continent) + geom_line() # uh, no
 
 # need to give the aesthetic group = country otherwise it runs one line through all the points. 
 y + facet_wrap(~ continent) + geom_line(aes(group = country)) +
   geom_smooth(se = FALSE, lwd = 2) 
 
-# we can also subset data to look at specific parts of it 
-# there are several ways to subset in R, this is the way I prefer
-
 ggplot(gDat[gDat$country== "Zimbabwe",],
        aes(x = year, y = lifeExp)) + geom_line() + geom_point()
-
-# we can also use 
 
 jCountries <- c("Canada", "Rwanda", "Cambodia", "Mexico")
 ggplot(subset(gDat, country %in% jCountries),
        aes(x = year, y = lifeExp, color = country)) + geom_line() + geom_point()
 
-#what if we want the order of the colors and legend to match the order of the lines?
-# we can use the reorder function as part of the color argument
 ggplot(subset(gDat, country %in% jCountries),
        aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
   geom_line() + geom_point()
 
-
+ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + scale_x_log10() + geom_bin2d()
 
 ## SAVING PLOTS ##
 
 ggsave(y, filename="y.png", width=10, height=10)
 
-png(filename="plot.png")
-# put plot here
-dev.off()
+
+
+
+
+
 
 ## Kinds of Graphs ##
-
-## so there are different geoms for different kinds of graphs, we'll cover some of the basics here
 
 ## Bar Graph
 
@@ -137,8 +115,6 @@ ggplot(gDat, aes(x=continent))+geom_bar()
 b <- ggplot(gDat, aes(x=reorder(continent, continent, length))) + geom_bar()
 
 b + coord_flip()
-
-#you can make the bars bigger or smaller
 
 ggplot(gDat, aes(x=reorder(continent, continent, length))) + geom_bar(width=0.05)+coord_flip()
 
@@ -163,10 +139,6 @@ ggplot(gDat, aes(x=lifeExp))+geom_histogram()
 
 p + geom_point()
 
-## box plots
-
-p + geom_boxplot()
-
 ###################################
 ## THEMES ##
 
@@ -174,9 +146,6 @@ p <- ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
 p <- p + scale_x_log10()
 p <- p + aes(color = continent) + geom_point() + geom_smooth(lwd = 3, se = FALSE)
 p + ggtitle("Life Expectancy over time by continent")
-p + xlab("text here")
-p + ylab("text here")
-
 
 p + theme_grey()
 p + theme_bw()
@@ -196,8 +165,6 @@ p + theme_wsj()
 
 # things I know cannot be done
     # you cannot have two different y axis
-
-?theme
 
 p + theme(
   axis.text = element_text(size = 35),
@@ -236,7 +203,7 @@ p  +
 
 # Colors
 
-#http://colorbrewer2.org/
+# http://colorbrewer2.org/
   
 display.brewer.all(n=NULL, type="all", select=NULL, exact.n=TRUE,colorblindFriendly=TRUE)
   
@@ -248,3 +215,4 @@ mypalette<-brewer.pal(5,"Set2")
 
 p + scale_color_manual(values=mypalette)
 
+```
