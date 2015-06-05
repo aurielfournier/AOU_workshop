@@ -8,15 +8,28 @@ output: html_document
 ## Keep your Data Frame Tidy
 ## Reshape your data
 
-
+######################################
 ## GGPLOT SECTION OF AOU WORKSHOP
+######################################
 
+# first off
+# go to here - https://speakerdeck.com/jennybc/ggplot2-tutorial
+# show a few slides on the differences between latice, base and ggplot
+# talk about tidy data to review from earlier in the lesson
+
+# use install.packages() if you don't have these already
+library(dplyr)
 library(ggplot2)
 library(ggthemes)
 library(RColorBrewer)
-gdURL <- "http://tiny.cc/gapminder"
-gDat <- read.delim(file = gdURL) 
+library(gridExtra)
+library(gapminder)
 
+# the data we are using today is called the gapminder dataset
+
+data(gapminder)
+
+gDat <- gapminder
 
 # we are not going to use qplot
 # we are going to dive into the real meat of ggplot
@@ -25,172 +38,365 @@ gDat <- read.delim(file = gdURL)
 # to begin every plot in ggplot we start with the ggplot() command
 # often this is where you give it your data and start things off, but it is never where you end
 
-p <- ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
+# ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
 
 ## no layers in plot
-# p
+
 ## what we have done so far is told ggplot what data we want to use and what axis we want it on, but we haven't told it what kind of graph we want. 
 
-# we can take our graphing object p and add the kind of graph we want, in this case we want the data represented as points (also called a scatterpoint)
-p + geom_point()
+# we can take our graphing object p and add the kind of graph we want, (geom) in this case we want the data represented as points 
+ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + 
+    geom_point()
 
-p + geom_point() + scale_x_log10()
 
-p + geom_point(aes(color=continent)) + scale_x_log10()
+ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + 
+    geom_point() + 
+    scale_x_log10()
 
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp, color = continent)) +
-  geom_point() + scale_x_log10()
+#add COLOR
+ggplot(gDat, aes(x = gdpPercap, y = lifeExp))+ 
+    geom_point(aes(color=continent)) + 
+    scale_x_log10()
 
-p <- ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10()
 
-p + geom_point(alpha=(1/3), size=3)
+# you can also put the data and aesthetics in the geom_layer
+#alpha gives you transparent points
+ggplot()+scale_x_log10()+ 
+    geom_point(data=gDat, aes(x=gdpPercap, y=lifeExp, alpha=(1/3)), size=3)
 
-p + geom_point() + geom_smooth()
-# arguments se=F, lwd=number
 
-p + geom_point() + geom_smooth(lwd = 3, se = FALSE, method = "lm")
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+    scale_x_log10() + 
+    geom_point() + 
+    geom_smooth()
+
+# turn on and off the standard error 
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10() +
+  geom_point() + 
+  geom_smooth(lwd = 1, se = TRUE, method = "lm")
 # argument added = method 
 # lm = linear model
 
-p + aes(color=continent)+geom_point()+geom_smooth(lwd=3, se=F)
-p + aes(color=continent)+geom_point()+geom_smooth(lwd=3, se=F,method="lm")
+# you can always add onto the aesthetics later by adding an additional aes command. 
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+  scale_x_log10()+ 
+  aes(color=continent)+
+  geom_point()+
+  geom_smooth(lwd=3, se=F)
 
-p + geom_point(alpha=(1/3), size=3)+facet_wrap(~continent)
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+  scale_x_log10()+ 
+  aes(color=continent)+
+  geom_point()+
+  geom_smooth(lwd=3, se=F,method="lm")
 
-p + geom_point(alpha = (1/3), size = 3) + facet_wrap(~ continent) +
+# ok but that is ALOT of lines on the same graph, and is super messy. Maybe good for a first glance, but not beyond that
+# thsi is where facet wrap comes into play
+
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+  scale_x_log10()+ 
+  geom_point(alpha=(1/3), size=3)+
+  facet_wrap(~continent)
+
+
+ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+  scale_x_log10()+ 
+  geom_point(alpha = (1/3), size = 3)+ 
+  facet_wrap(~ continent) +
   geom_smooth(lwd = 1, se = FALSE, method="lm")
 
-
 # exercises:
-#   plot lifeExp against year
+# plot lifeExp against year
 # make mini-plots, split out by continent
 # add a fitted smooth and/or linear regression, w/ or w/o facetting
 # other ideas?
 # plot lifeExp against year
 
-(y <- ggplot(gDat, aes(x = year, y = lifeExp)) + geom_point())
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()
 
-y + facet_wrap(~continent)
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()+ 
+  facet_wrap(~continent)
 
-y + geom_smooth(se=FALSE, lwd=2)+geom_smooth(se=FALSE, method="lm",color="orange",lwd=2)
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()+ 
+  geom_smooth(se=FALSE, lwd=2)+
+  geom_smooth(se=FALSE, method="lm",color="orange",lwd=2)
 
-y + geom_smooth(se = FALSE, lwd = 2) +
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()+ 
+  geom_smooth(se = FALSE, lwd = 2)+
   facet_wrap(~ continent)
 
-y + facet_wrap(~ continent) + geom_line() # uh, no
+# ok what if we want to draw this with lines connecting the life expectancy of each country? 
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()+ 
+  facet_wrap(~ continent)+ 
+  geom_line() # uh, no
 
 # need to give the aesthetic group = country otherwise it runs one line through all the points. 
-y + facet_wrap(~ continent) + geom_line(aes(group = country)) +
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_point()+ 
+  facet_wrap(~ continent)+ 
+  geom_line(aes(group = country))+
   geom_smooth(se = FALSE, lwd = 2) 
+####################
+## CHALLENGE
+####################
 
-ggplot(gDat[gDat$country== "Zimbabwe",],
-       aes(x = year, y = lifeExp)) + geom_line() + geom_point()
+# What can we add to this code that will allow us to graph JUST the information from Zimbabwe?
+
+ggplot(gDat, aes(x = year, y = lifeExp))+ 
+  geom_line()+ 
+  geom_point()
+
+# we can also subset data to look at specific parts of it 
+# there are several ways to subset in R, this is the way I prefer
+
+ggplot(gDat[gDat$country== "Zimbabwe",], aes(x = year, y = lifeExp))+ 
+  geom_line()+ 
+  geom_point()
+
+# We can also use vectores of names and the %in% operator to grab a subset of countries
 
 jCountries <- c("Canada", "Rwanda", "Cambodia", "Mexico")
-ggplot(subset(gDat, country %in% jCountries),
-       aes(x = year, y = lifeExp, color = country)) + geom_line() + geom_point()
 
-ggplot(subset(gDat, country %in% jCountries),
-       aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
-  geom_line() + geom_point()
+ggplot(subset(gDat, country %in% jCountries), aes(x = year, y = lifeExp, color = country))+ 
+  geom_line()+ 
+  geom_point()
 
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + scale_x_log10() + geom_bin2d()
+#what if we want the order of the colors and legend to match the order of the lines?
+# we can use the reorder function as part of the color argument
+ggplot(subset(gDat, country %in% jCountries),
+  aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
+  geom_line()+ 
+  geom_point()
 
 ## SAVING PLOTS ##
 
+## Talk about working directories!!
+y <- ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")
+
+
 ggsave(y, filename="y.png", width=10, height=10)
 
+png(filename="plot.png")
 
+ggplot(subset(gDat, country %in% jCountries),
+  aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
+  geom_line()+ 
+  geom_point()
 
+dev.off()
 
-
-
-
+#########################
 ## Kinds of Graphs ##
+#########################
+
+## so there are different geoms for different kinds of graphs, we'll cover some of the basics here
 
 ## Bar Graph
 
-ggplot(gDat, aes(x=continent))+geom_bar()
+ggplot(gDat, aes(x=continent))+
+  geom_bar()
 
-b <- ggplot(gDat, aes(x=reorder(continent, continent, length))) + geom_bar()
+ggplot(gDat, aes(x=reorder(continent, continent, length))) + 
+  geom_bar()
 
-b + coord_flip()
+ggplot(gDat, aes(x=continent))+
+  geom_bar() +
+  coord_flip()
 
-ggplot(gDat, aes(x=reorder(continent, continent, length))) + geom_bar(width=0.05)+coord_flip()
+#you can make the bars bigger or smaller
+
+ggplot(gDat, aes(x=reorder(continent, continent, length))) + 
+  geom_bar(width=0.05)+
+  coord_flip()
 
 
  # bar plots with already given y values
-(jDat <- as.data.frame(with(gDat, table(continent, deparse.level = 2))))
-ggplot(jDat, aes(x = continent)) + geom_bar()
-ggplot(jDat, aes(x = continent, y = Freq)) + geom_bar(stat = "identity")
+(jDat <- gDat %>% group_by(continent) %>% summarise(avg=mean(pop)))
+
+ggplot(jDat, aes(x = continent)) + 
+  geom_bar()
+
+ggplot(jDat, aes(x = continent, y = avg)) + 
+  geom_bar(stat = "identity")
 
 ## Line Graph
 
-p + geom_line()
-p + geom_line(aes(group=country, color=country))+facet_wrap(~continent)
+ggplot(gDat, aes(x=year,y=lifeExp, group=country)) + 
+  geom_line()
 
+
+ggplot(gDat, aes(x=year,y=lifeExp, group=country)) + 
+  geom_line() +
+  facet_wrap(~continent)
 
 
 ## Histogram
 
-ggplot(gDat, aes(x=lifeExp))+geom_histogram()
+ggplot(gDat, aes(x=lifeExp))+
+  geom_histogram()
 
 ## Scatter Plot
 
-p + geom_point()
+ggplot(gDat, aes(x=lifeExp, y=gdpPercap)) + 
+  geom_point()
+
+## box plots
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()
 
 ###################################
 ## THEMES ##
+###################################
 
-p <- ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
-p <- p + scale_x_log10()
-p <- p + aes(color = continent) + geom_point() + geom_smooth(lwd = 3, se = FALSE)
-p + ggtitle("Life Expectancy over time by continent")
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()
 
-p + theme_grey()
-p + theme_bw()
-p + theme_calc()
-p + theme_economist()
-p + theme_economist_white()
-p + theme_few()
-p + theme_gdocs()
-p + theme_wsj()
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")
 
-###
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")+ 
+  theme_grey()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_bw()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_calc()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_economist()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_economist_white()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_few()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_gdocs()
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + 
+  theme_wsj()
+
+###############################
 # BUT YOU CAN DO IT YOURSELF
 # OF COURSE
+###############################
 
 # these is where ggplot can become really really exhausting
 # ALMOST anything you want to do, can be done
 
 # things I know cannot be done
+###############################################
     # you cannot have two different y axis
 
-p + theme(
-  axis.text = element_text(size = 35),
-  axis.title=element_text(size=50, color="red"),
-  legend.key = element_rect(fill = "navy"),
-  legend.background = element_rect(fill = "white"),
-  legend.position = c(0.14, 0.80),
-  panel.grid.major = element_line(colour = "grey40"),
-  panel.grid.minor = element_blank(),
-  panel.background = element_rect(fill = "navy")
+?theme
+
+
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")+ 
+  theme(axis.text = element_text(size = 35),
+    axis.title=element_text(size=50, color="red"),
+    legend.key = element_rect(fill = "navy"),
+    legend.background = element_rect(fill = "white"),
+    legend.position = c(0.14, 0.80),
+    panel.grid.major = element_line(colour = "grey40"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "navy")
 )
 
+## Clearly this is very ugly
 
-p  +
+## What I do is have a script with these theme defaults that I can throw in. 
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") +
+  theme(axis.text.x = element_text(ang=90,color="black", size=15),
+        axis.text.y = element_text(ang=90,size=15,color="black"),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=20),
+        plot.background = element_rect(fill = "white" ), #plot background color
+        panel.grid.major= element_line(colour=NA), 
+        panel.grid.minor=element_line(colour=NA),
+        panel.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.line=element_line(colour="black"))
+
+
+
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")  +
   theme(axis.text = element_text(size = 14),
         legend.key = element_rect(fill = "navy"),
         legend.background = element_rect(fill = "white"),
         legend.position = c(0.14, 0.80),
         panel.grid.major = element_line(colour = "grey40"),
         panel.grid.minor = element_blank()
-  )+   theme_bw()
+  )
 
-
+###################
 # Legends
+###################
 
-p  +
+ggplot(gDat, aes(x=pop, y=lifeExp, color=continent)) + 
+  geom_point()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")  +
   theme(axis.text = element_text(size = 14),
         legend.key = element_rect(fill = "navy"),
         legend.background = element_rect(fill = "red"),
@@ -200,19 +406,44 @@ p  +
   )
 
 
-
+######################
 # Colors
-
-# http://colorbrewer2.org/
+#####################
+#http://colorbrewer2.org/
   
 display.brewer.all(n=NULL, type="all", select=NULL, exact.n=TRUE,colorblindFriendly=TRUE)
   
 mypalette<-brewer.pal(5,"Greens")
 
-p + scale_color_manual(values=mypalette)
+ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + scale_fill_manual(values=mypalette)
 
 mypalette<-brewer.pal(5,"Set2")
 
-p + scale_color_manual(values=mypalette)
+ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here") + scale_fill_manual(values=mypalette)
 
+###################################
+## Stacking and Rearranging Graphs
+###################################
+
+a <- ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")
+
+b <- ggplot(gDat, aes(x=pop, y=lifeExp)) + 
+  geom_point()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")
+
+grid.arrange(a,b,a,b,ncol=2)
 ```
