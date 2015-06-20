@@ -315,13 +315,24 @@ ggplot(gDat, aes(x=continent, y=lifeExp)) +
 
 ?theme
 
+## so you can add things onto a default theme, to make it better/what you want
+## here we can remove the gridlines from theme_bw
 
+ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+  geom_boxplot()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")+
+  theme_bw()+
+  theme(panel.grid=element_blank())
+
+# you can also make BUTT UGLY GRAPHS
 
 ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
   geom_line()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
-  ylab("text here")+ 
+  ylab("text here")+
   theme(axis.text = element_text(size = 35),
     axis.title=element_text(size=50, color="red"),
     legend.key = element_rect(fill = "navy"),

@@ -1,0 +1,130 @@
+---
+output: html_document
+---
+
+
+If you talk to people who hate R chances are (if they have used R) the reason they hate it has nothing to do with R, and EVERYTHING to do with data management. 
+
+R is not excel, it will never be excel, and for that we can all be grateful. But if the only way you have ever interacted with data is through excel obviously R is a totally different ballgame. 
+
+One of the big complaints I hear is 'R doesn't read excel files'
+
+first - this is not true (there are packages that let you read in excel files)
+second - if you have your data in a CLEAN AND MANAGED FORM you can save your excel file as a txt or csv or tsv and EASILY import it into R. 
+third - people like to hate on R (just like I love to love on R)
+
+# There are many things you can do AS YOU ENTER _and_ PROOF your data to make your life easier (EVEN IF YOU DONT USE R)
+
+Ideally you will do all your data analysis of one dataset _without_ splitting the dataset up into little pieces
+
+# tips for getting data into R without wanting to destroy things
+
+- NO SPACES _especially in column headers_
+- do not start column headers with numbers
+- keep EVERYTHING LOWER CASE unless you have a really good reason
+- you CAN use underscores "_" or periods "." but really running things together _intooneword_ is better 
+
+# data management rant
+
+- good metadata
+- what it is
+- why it is important
+- your most important collaborator is yourself six months ago, so leave yourself good notes, since you can't send yourself six months ago an email. 
+
+```{r}
+
+# subsettting data
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(gapminder)
+data(gapminder)
+
+dat <- gapminder
+str(dat)
+dim(dat)
+
+# ROWS then COLUMNS
+
+dat[2,4]
+
+dat[ ,"pop"]
+
+dat[dat$pop>=8000000,]
+
+dat[dat$pop>=8000000&dat$lifeExp>=30,]
+
+dat[dat$year>=1950|dat$pop>8000000,]
+```
+
+| = or
+
+& = and
+
+>=
+==
+<=
+!=
+
+```{r}
+
+dat[!(dat$year>=1950&dat$pop>8000000),]
+
+```
+- there is also the subset() function which can do much of this, but I find this more intuitive
+- 
+
+# reshaping data
+
+# DPLYR
+
+- arrange()
+```{r}
+head(arrange(dat, year, lifeExp))
+
+
+table(dat$year)
+
+```
+- sample_n()
+- sample_frac()
+
+
+(2) Data management and manipulation 
+
+tidyr is new package that makes it easy to "tidy" your data. Tidy data is data that's easy to work with: it's easy to munge (with dplyr), visualise (with ggplot2 or ggvis) and model (with R's hundreds of modelling packages). The two most important properties of tidy data are:
+
+Each column is a variable.
+Each row is an observation.
+```{r}
+inf <- read.csv("C:/Users/avanderlaar/Documents/GitHub/AOU_workshop/inflammation-01.csv", header=F)
+
+inf$id <- paste("A", 1:60, sep="")
+
+mdat <- gather(data=inf, variable, value, -id)
+
+# ok lets compare the two datasets
+
+head(inf)
+head(dat)
+
+# so if we want to graph 
+
+ggplot(mdat, aes(x=variable, y=value, group=id, color=id))+geom_line()
+```
+# seperate
+```{r}
+mdat <- separate(data=mdat, id, into=c("letter","number"), sep=1)
+
+inf <- read.csv("C:/Users/avanderlaar/Documents/GitHub/AOU_workshop/inflammation-01.csv", header=F)
+
+inf$id <- paste("A", 1:60, sep="_")
+
+dat <- gather(data=inf, id)
+
+dat <- separate(data=dat, id, into=c("letter","number"), sep="_")
+
+```
+
+
+
