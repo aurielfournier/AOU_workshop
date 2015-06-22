@@ -2,11 +2,9 @@
 output: html_document
 ---
 ```{r}
-## Use Data Frames
-## Use Factors
-## Be Boss of your factors
-## Keep your Data Frame Tidy
-## Reshape your data
+## Further ggplot2 Resources
+# https://github.com/jennybc/ggplot2-tutorial
+# http://docs.ggplot2.org/current/
 
 ######################################
 ## GGPLOT SECTION OF AOU WORKSHOP
@@ -29,7 +27,7 @@ library(gapminder) #
 
 data(gapminder)
 
-gDat <- gapminder
+gdat <- gapminder
 
 # we are not going to use qplot
 # we are going to dive into the real meat of ggplot
@@ -38,46 +36,46 @@ gDat <- gapminder
 # to begin every plot in ggplot we start with the ggplot() command
 # often this is where you give it your data and start things off, but it is never where you end
 
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp))
+# ggplot(gdat, aes(x = gdpPercap, y = lifeExp))
 
 ## no layers in plot
 
 ## what we have done so far is told ggplot what data we want to use and what axis we want it on, but we haven't told it what kind of graph we want. 
 
 # we can take our graphing object p and add the kind of graph we want, (geom) in this case we want the data represented as points 
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + geom_point()
+ggplot(gdat, aes(x = gdpPercap, y = lifeExp)) + geom_point()
 
 
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp)) + 
+ggplot(gdat, aes(x = gdpPercap, y = lifeExp)) + 
     geom_point() + 
     scale_x_log10()
 
 #add COLOR
-ggplot(gDat, aes(x = gdpPercap, y = lifeExp))+ 
+ggplot(gdat, aes(x = gdpPercap, y = lifeExp))+ 
     geom_point(aes(color=continent)) + 
     scale_x_log10()
 
 
 # you can also put the data and aesthetics in the geom_layer
 #alpha gives you transparent points
-ggplot(data=gDat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10()+ 
+ggplot(data=gdat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10()+ 
     geom_point(aes(alpha=(1/3), size=3))
 
 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp))+
     scale_x_log10() + 
     geom_point() + 
     geom_smooth()
 
 # turn on and off the standard error 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10() +
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp))+scale_x_log10() +
   geom_point() + 
   geom_smooth(lwd = 3, se = FALSE, method = "lm")
 # argument added = method 
 # lm = linear model
 
 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp, color=continent))+
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp, color=continent))+
   scale_x_log10()+ 
   geom_point()+
   geom_smooth(lwd=3, se=F,method="lm")
@@ -86,13 +84,13 @@ ggplot(gDat, aes(x=gdpPercap, y=lifeExp, color=continent))+
 # thsi is where facet wrap comes into play
 # explain facet wrap
 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp))+
   scale_x_log10()+ 
   geom_point(alpha=(1/3), size=3)+
   facet_wrap(~continent)
 
 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp))+
   scale_x_log10()+ 
   geom_point(alpha = (1/3), size = 3)+ 
   facet_wrap(~ continent) +
@@ -106,20 +104,20 @@ ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
 # add a fitted smooth and/or linear regression
 
 
-ggplot(gDat, aes(x = year, y = lifeExp))+ 
+ggplot(gdat, aes(x = year, y = lifeExp))+ 
   geom_point()
 
-ggplot(gDat, aes(x = year, y = lifeExp))+ 
+ggplot(gdat, aes(x = year, y = lifeExp))+ 
   geom_point()+ 
   facet_wrap(~continent)
 
-ggplot(gDat, aes(x = year, y = lifeExp))+ 
+ggplot(gdat, aes(x = year, y = lifeExp))+ 
   geom_point()+ 
   geom_smooth(se = FALSE, lwd = 2)+
   facet_wrap(~ continent)
 
 # ok what if we want to draw this with lines connecting the life expectancy of each country? 
-ggplot(gDat[gDat$continent=="Africa",], aes(x = year, y = lifeExp))+ 
+ggplot(gdat[gdat$continent=="Africa",], aes(x = year, y = lifeExp))+ 
   geom_point()+ 
   geom_line() # uh, no
 
@@ -129,7 +127,7 @@ ggplot(gDat[gDat$continent=="Africa",], aes(x = year, y = lifeExp))+
 # color gives you legend, group does not
 # add the group aes to ggplot because it 
 # doesnt' matter if geom_point is grouped
-ggplot(gDat[gDat$continent=="Africa",], aes(x = year, y = lifeExp, group=country))+ 
+ggplot(gdat[gdat$continent=="Africa",], aes(x = year, y = lifeExp, group=country))+ 
   geom_point()+ 
   geom_line()
 
@@ -141,13 +139,13 @@ ggplot(gDat[gDat$continent=="Africa",], aes(x = year, y = lifeExp, group=country
 
 jCountries <- c("Canada", "Rwanda", "Cambodia", "Mexico")
 
-ggplot(subset(gDat, country %in% jCountries), aes(x = year, y = lifeExp, color = country))+ 
+ggplot(subset(gdat, country %in% jCountries), aes(x = year, y = lifeExp, color = country))+ 
   geom_line()+ 
   geom_point()
 
 #what if we want the order of the colors and legend to match the order of the lines?
 # we can use the reorder function as part of the color argument
-ggplot(subset(gDat, country %in% jCountries),
+ggplot(subset(gdat, country %in% jCountries),
   aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
   geom_line()+ 
   geom_point()
@@ -155,7 +153,7 @@ ggplot(subset(gDat, country %in% jCountries),
 ## SAVING PLOTS ##
 
 ## Talk about working directories!!
-y <- ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+y <- ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_point()
 
 ggsave(y, filename="y.png", width=10, height=10, units="cm")
@@ -163,7 +161,7 @@ ggsave(y, filename="y.png", width=10, height=10, units="cm")
 # this is not in ggplot
 png(filename="plot.png")
 
-ggplot(subset(gDat, country %in% jCountries),
+ggplot(subset(gdat, country %in% jCountries),
   aes(x = year, y = lifeExp, color = reorder(country, -1 * lifeExp, max))) +
   geom_line()+ 
   geom_point()
@@ -180,25 +178,25 @@ dev.off()
 
 ## Bar Graph
 
-ggplot(gDat, aes(x=continent))+
+ggplot(gdat, aes(x=continent))+
   geom_bar()
 
-ggplot(gDat, aes(x=reorder(continent, continent, length))) + 
+ggplot(gdat, aes(x=reorder(continent, continent, length))) + 
   geom_bar()
 
-ggplot(gDat, aes(x=continent))+
+ggplot(gdat, aes(x=continent))+
   geom_bar() +
   coord_flip()
 
 #you can make the bars bigger or smaller
 
-ggplot(gDat, aes(x=reorder(continent, continent, length))) + 
+ggplot(gdat, aes(x=reorder(continent, continent, length))) + 
   geom_bar(width=0.05)+
   coord_flip()
 
 
  # bar plots with already given y values
-(jDat <- gDat %>% group_by(continent) %>% summarise(avg=mean(pop)))
+(jDat <- gdat %>% group_by(continent) %>% summarise(avg=mean(pop)))
 
 ggplot(jDat, aes(x = continent)) + 
   geom_bar()
@@ -208,93 +206,93 @@ ggplot(jDat, aes(x = continent, y = avg)) +
 
 ## Line Graph
 
-ggplot(gDat, aes(x=year,y=lifeExp, group=country)) + 
+ggplot(gdat, aes(x=year,y=lifeExp, group=country)) + 
   geom_line()
 
 
-ggplot(gDat, aes(x=year,y=lifeExp, group=country)) + 
+ggplot(gdat, aes(x=year,y=lifeExp, group=country)) + 
   geom_line() +
   facet_wrap(~continent)
 
 
 ## Histogram
 
-ggplot(gDat, aes(x=lifeExp))+
+ggplot(gdat, aes(x=lifeExp))+
   geom_histogram()
 
 ## Scatter Plot
 
-ggplot(gDat, aes(x=lifeExp, y=gdpPercap)) + 
+ggplot(gdat, aes(x=lifeExp, y=gdpPercap)) + 
   geom_point()
 
 ## box plots
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()
 
 ###################################
 ## THEMES ##
 ###################################
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here")
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here")+ 
   theme_grey()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_bw()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_calc()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_economist()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_economist_white()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_few()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
   ylab("text here") + 
   theme_gdocs()
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -313,12 +311,10 @@ ggplot(gDat, aes(x=continent, y=lifeExp)) +
 ###############################################
     # you cannot have two different y axis
 
-?theme
-
 ## so you can add things onto a default theme, to make it better/what you want
 ## here we can remove the gridlines from theme_bw
 
-ggplot(gDat, aes(x=continent, y=lifeExp)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -328,7 +324,7 @@ ggplot(gDat, aes(x=continent, y=lifeExp)) +
 
 # you can also make BUTT UGLY GRAPHS
 
-ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
   geom_line()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -345,10 +341,51 @@ ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, c
     panel.background = element_rect(fill = "navy")
 )
 
+## Custom Legend Position
+
+
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
+  geom_line()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")+
+  theme(axis.text = element_text(size = 35),
+    axis.title.x=element_text(size=50, color="red"),
+    legend.key = element_rect(fill = "navy"),
+    legend.background = element_rect(fill = "white"),
+    legend.position = c(.15,.75),
+    legend.direction = "vertical",
+    panel.grid.major.x = element_line(colour = "grey40"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "navy")
+)
+
+## change legend title
+
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
+  geom_line()+ 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")+
+  theme(axis.text = element_text(size = 35),
+    axis.title.x=element_text(size=50, color="red"),
+    legend.key = element_rect(fill = "navy"),
+    legend.background = element_rect(fill = "white"),
+    legend.position = c(.15,.75),
+    legend.direction = "vertical",
+    panel.grid.major.x = element_line(colour = "grey40"),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "navy")
+)+
+  scale_color_discrete(name="Countries in\nOceania")
+
+
 ## Clearly this is very ugly
 
 ## What I do is have a script with these theme defaults that I can throw in. 
-ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
   geom_line()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -366,7 +403,7 @@ ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, c
 
 
 
-ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, color=country)) + 
   geom_line()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -383,7 +420,7 @@ ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country, c
 # Legends
 ###################
 
-ggplot(gDat, aes(x=pop, y=lifeExp, color=continent)) + 
+ggplot(gdat, aes(x=pop, y=lifeExp, color=continent)) + 
   geom_point()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -391,11 +428,50 @@ ggplot(gDat, aes(x=pop, y=lifeExp, color=continent)) +
   theme(axis.text = element_text(size = 14),
         legend.key = element_rect(fill = "navy"),
         legend.background = element_rect(fill = "white"),
-        legend.position = c(.2,.8),
+        legend.position = c(.6,.1),
         legend.direction= "horizontal",
         panel.grid.major = element_line(colour = "grey40"),
         panel.grid.minor = element_blank()
   )
+
+
+#########
+# Error Bars
+#########
+
+gdat$se <- 5000
+
+
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, color=country)) + 
+  ggtitle("TITLE HERE")+ 
+  xlab("text here")+ 
+  ylab("text here")  +
+  theme_bw()+
+  theme(axis.text = element_text(size = 14),
+        legend.key = element_rect(fill = "navy"),
+        legend.background = element_rect(fill = "white"),
+        legend.position = c(.6,.1),
+        legend.direction= "horizontal",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()
+  )+
+  geom_ribbon(aes(ymin=gdpPercap-se, ymax=gdpPercap+se), alpha=0.4)+
+    geom_line()
+
+
+
+ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, color=country)) + 
+  geom_point()+ 
+  theme(axis.text = element_text(size = 14),
+        legend.key = element_rect(fill = "navy"),
+        legend.background = element_rect(fill = "white"),
+        legend.position = c(.6,.1),
+        legend.direction= "horizontal",
+        panel.grid.major = element_line(colour = "grey40"),
+        panel.grid.minor = element_blank()
+  )+
+  geom_line()+
+  geom_errorbar(aes(ymin=gdpPercap-se, ymax=gdpPercap+se))
 
 
 ######################
@@ -405,9 +481,10 @@ ggplot(gDat, aes(x=pop, y=lifeExp, color=continent)) +
   
 display.brewer.all(n=NULL, type="all", select=NULL, exact.n=TRUE,colorblindFriendly=TRUE)
   
+# explain WHAT this is doing
 mypalette<-brewer.pal(5,"Greens")
 
-ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp, fill=continent)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -415,7 +492,7 @@ ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) +
 
 mypalette<-brewer.pal(5,"Set2")
 
-ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) + 
+ggplot(gdat, aes(x=continent, y=lifeExp, fill=continent)) + 
   geom_boxplot()+ 
   ggtitle("TITLE HERE")+ 
   xlab("text here")+ 
@@ -423,10 +500,10 @@ ggplot(gDat, aes(x=continent, y=lifeExp, fill=continent)) +
 
 # mention that you can come up with your own vectores of hexidecimal or 'word' colors
 
-# put in explanation of how to store graphs as letters
+# put in explanation of how to store graphs as objects
 
 # you can always add onto the aesthetics later by adding an additional aes command. 
-ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
+ggplot(gdat, aes(x=gdpPercap, y=lifeExp))+
   scale_x_log10()+ 
   aes(color=continent)+
   geom_point()+
@@ -436,10 +513,10 @@ ggplot(gDat, aes(x=gdpPercap, y=lifeExp))+
 ## Stacking and Rearranging Graphs (gridExtra)
 ###################################
 
-a <- ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country)) + 
+a <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country)) + 
   geom_line()
 
-b <- ggplot(gDat[gDat$continent=="Oceania",], aes(x=year, y=gdpPercap, group=country)) + 
+b <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, group=country)) + 
   geom_line()
 
 
@@ -448,5 +525,28 @@ grid.arrange(a,b,a,b,nrow=2)
 png("x.png")
 grid.arrange(a,b,nrow=2)
 dev.off()
+
+graphs <- list()
+
+graphs[[1]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country)) + 
+  geom_line()
+
+graphs[[2]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, group=country)) + 
+  geom_line()
+
+graphs[[3]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country)) + 
+  geom_line()
+
+graphs[[4]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, group=country)) + 
+  geom_line()
+
+graphs[[5]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=lifeExp, group=country)) + 
+  geom_line()
+
+graphs[[6]] <- ggplot(gdat[gdat$continent=="Oceania",], aes(x=year, y=gdpPercap, group=country)) + 
+  geom_line()
+
+do.call(grid.arrange,graphs)
+
   
 ```
