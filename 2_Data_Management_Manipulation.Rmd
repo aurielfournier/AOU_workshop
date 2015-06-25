@@ -47,15 +47,34 @@ Ideally you will do all your data analysis of one dataset _without_ splitting th
 - Save your scripts for data cleaning/data manipulation and if you remove any part of the data make comments within the script explaining why so that future you can remember, future you is an idiot, comment accordingly 
 
 
-```{r, echo=FALSE}
-
-# subsettting data
+```{r, warning=FALSE, message=FALSE}
 library(tidyr)
 library(dplyr)
 library(ggplot2)
 library(gapminder)
+```
+
+# DPLYR
+
+### pipes
+
+often when doing data management you want to do a series of things to a data frame, without having each thing you do assigned to a new, or constantly over writing object. One way you can do this is with pipes %>% which are part of the tidyr and dplyr packages. So you can load either package to get pipes. 
+
+%>% pipes let you string together multiple functions by taking the output from the last function and making it the first argument of the next one.
+This prevents you from having to rewrite over your previous object (which can cause issues if the function doesn't work the way you think it will the first time) and/or keeps you from creating tons of intermediate objects that you then have to keep track of. You will have to load 
+
+```{r}
+data(gapminder)
+
+gdat <- gapminder
+# this is also super helpful for looking at the top of a file
+
+gdat %>% head
+
+gdat %>% nrow
 
 ```
+
 
 ```{r}
 ################################################
@@ -80,53 +99,26 @@ colnames(myebird) <- gsub("[.]","",colnames(myebird))
 
 # ahh, there we go, no crazy periods
 
-##in this case the periods in the column names are not a problem
 ##the first thing I know eBird is particularly interested in subspecies as well as hybirds. I, however, am not.
 
-
-#  unique(myebird$commonname)
+unique(myebird$commonname)
 
 #what things in this do we not want?  (('sp.','hybird','domestic','/', '(color morph)'))
 #how can we filter these things out? 
 ##well first some of these are not like the other 'sp.' and 'hybrid' are just names that are easily filtered out
 bad<-c('sp\\.','(hybrid)','domestic','/')
-test<-myebird[!(grepl(bad,myebird$commonname)),]
-### we see this doesn't work, it's only searching for the first argument not subsequent arguements
 
-##we could do this
-test<-myebird[grepl('sp\\.',myebird$commonname),]   ##'why '\\.'## simply because we need to search special characters
-test<-myebird[grepl('hybird',myebird$commonname),]  
+myebird <- myebird %>% filter(!grepl(c('sp\\.|(hybrid)|domestic|/'),commonname))
 
-##but theres no need we'll wrap it
-####we'll wrap it in an sapply
-badnames<-sapply(bad,grepl,myebird$commonname)
-###what exactly did we just do?
-
-View(badnames)
-apply(badnames,1,sum)
-test<-myebird[apply(badnames,1,sum)==0,]
-unique(test$commonname)
-
-
-###and that seems to take care of the easy ones,
-myebird<-myebird[apply(badnames,1,sum)==0,]
 ##but what do we do with color morphs and subspecies?
 ### well these all have parenthesis in common, perhaps we can just subset by that?
 
-test<-myebird[grepl('\\(',myebird$commonname),]
+test<- myebird %>% filter(!grepl('\\(',myebird$commonname))
 
 ###this basically works, but it takes out species I know I do not have any other entries of, like Attwaters Greater Prairie Chicken
 #lets look at it a different way. Since these are species we do want to count, lets just lump them into their species categories
 
-newnames<-substr(myebird$commonname,1,(regexpr('\\(',myebird$commonname)-2))
-
-###now this works ok, but we now have blank spots where there shouldn't be changes
-myebird$commonname<-as.character(myebird$commonname)   ###this is necessary because it's a factor
-myebird$commonname[nchar(newnames)>0]<-newnames[nchar(newnames)>0]
-myebird$commonname<-as.factor(myebird$commonname)   ##its better to convert this back to a factor
-
-View(myebird)
-###there is likely other ways to do this, but this works
+myebird$commonname <- gsub("\\s*\\([^\\)]+\\)","",as.character(myebird$commonname))
 
 ####a final, easier problem is what do we do with 'X's', well the easiest thing is just to call them 1's
 myebird$count[myebird$count=='X']<-1
@@ -137,8 +129,8 @@ myebird$count<-as.numeric(myebird$count)
 
 ##lets do some quick cleaning, I do not want all these columns
 colnames(myebird)
-myebird<-subset(myebird,select=-c(scientificname,taxonomicorder,allobsreported,numberofobservers,breedingcode,speciescomments,checklistcomments))
 
+myebird<- myebird %>% select(-scientificname,-taxonomicorder,-allobsreported,-numberofobservers,-breedingcode,-speciescomments,-checklistcomments)
 
 #####now lets further fix some of this, for some future analysis
 #For example I don't really am interested in my life list, this data set doesn't explicitly state anything
@@ -179,15 +171,17 @@ ct-earlytime
 ##as well as logical statements
 ct>earlytime
 ct==earlytime
-##which can be really useful when you have time stamps in your file name and you need to choose the right time
 
-####################################################
-###so we want to make a data set that creates a life list and tells me when, where, and what bird each life bird was
-#lets start by creating a true date time column. That way we basically know to the hour when we first saw a bird
 ```
+which can be really useful when you have time stamps in your file name and you need to choose the right time
+
+so we want to make a data set that creates a life list and tells me when, where, and what bird each life bird was
+lets start by creating a true date time column. That way we basically know to the hour when we first saw a bird
+
+first we have to fudge a bit and say if there isn't an hour we'll assume it was noon
 
 ```{r}
-###first we have to fudge a bit and say if there isn't an hour we'll assume it was noon
+
 myebird$time<-as.character(myebird$time)
 is.na(myebird$time)
 myebird$time[nchar(myebird$time)==0]<-'12:00 PM'
@@ -199,15 +193,14 @@ myebird$timez<-as.POSIXct(timez,format='%m-%d-%Y %I:%M %p')
 myebird<-myebird[order(myebird$commonname,myebird$timez),]
 ####now theres a couple of different ways to get what we want. But we essentially want the first observation
 #I'm going to use aggregate
-lifer<-aggregate(myebird,by=list(myebird$commonname),function(x){x[[1]]})
-lifer<-lifer[order(lifer$timez),]
 
-lifer<-arrange(lifer,timez)   ###dplyr equivalent
+lifer <- myebird %>%  mutate(commonname=first(commonname))
+
+lifer<- lifer %>% arrange(timez)
 
 lifer$lifebird<-1:nrow(lifer)
 
-View(lifer)
-lifer[600,]
+
 ###
 ggplot(lifer,aes(timez,lifebird)) + geom_line()
 ggplot(lifer,aes(longitude,latitude)) +geom_point()
@@ -215,32 +208,33 @@ ggplot(myebird,aes(longitude,latitude)) +geom_point()
 
 ```
 
+
+################################
+# Effort correction
+################################
+
+before we go comparing counts for a given species we need to think about the effort that went into creaeting those numbers
+
+the simplest way to account for this is to correct for the number of kilometers covered(there are other ways, but for today, we'll tackle this way).
+
 ```{r}
-################################
-#### Effort correction
-################################
-
-# before we go comparing counts for a given species we need to think about the effort that went into creaeting those numbers
-
-# the simplest way to account for this is to correct for the number of kilometers covered(there are other ways, but for today, we'll tackle this way).
-
-myebird$effortcount <- myebird$count / myebird$distancetraveledkm
+myebird <- myebird %>% mutate(effortcount = count + distancetraveledkm)
 
 summary(myebird$effortcount)
-
-# ok, so this is all good and fine, but we have a lot of NAs which aren't very informative. 
-
-# how do we subset our data to get rid of these NA's and their corresponding data? 
-
-myebird <- myebird[!(is.na(myebird$effortcount)),]
-
-# tadah! NAs are gone. 
-
-# there are functions which will do this, but when you only want to remove NAs from a particular 
-# column it is often easier to phrase it this way. 
-
-
 ```
+
+ok, so this is all good and fine, but we have a lot of NAs which aren't very informative. 
+
+how do we subset our data to get rid of these NA's and their corresponding data? 
+
+```{r}
+myebird <- myebird %>% filter(!is.na(effortcount))
+```
+
+tadah! NAs are gone. 
+
+there are functions which will do this, na.omit() to the entire data frame but when you only want to remove NAs from a particular column it is often easier to phrase it this way. 
+
 
 
 ```{r}
@@ -262,11 +256,13 @@ People often like to look at data in long format, but R likes data in long forma
 
 Wide format is where each unit (lets say a vegetation point) is a row, and each column is a variable (site, date, water depth, etc, etc)
 
+(examples of wide data, since gapminder is already in long format)
+
 ```{r}
-## examples of wide data, since gapminder is already in long format
-spread(gdat[,1:4], year, lifeexp) %>% head()
-spread(gdat[,c(1:3,5)], year, pop) %>% head()
-spread(gdat[,c(1:3,6)],year, gdppercap) %>% head()
+
+gdat %>% select(-pop,-gdppercap) %>% spread(year, lifeexp) %>% head()
+gdat %>% select(-lifeexp, -gdppercap) %>% spread(year, pop) %>% head()
+gdat %>% select(-pop, -lifeexp) %>% spread(year, gdppercap) %>% head()
 
 head(gdat)
 
@@ -278,31 +274,16 @@ The advantage of long format data is it is easier to summarize and reform into g
 
 ### Data management and manipulation 
 
-tidyr is new package that makes it easy to "tidy" your data. Tidy data is data that's easy to work with: it's easy to munge (with dplyr), visualise (with ggplot2 or ggvis) and model (with R's hundreds of modelling packages). 
-
-### pipes
-
-often when doing data management you want to do a series of things to a data frame, without having each thing you do assigned to a new, or constantly over writing object. One way you can do this is with pipes %>% which are part of the tidyr and dplyr packages. So you can load either package to get pipes. 
-
-%>% pipes let you string together multiple functions by taking the output from the last function and making it the first argument of the next one.
-This prevents you from having to rewrite over your previous object (which can cause issues if the function doesn't work the way you think it will the first time) and/or keeps you from creating tons of intermediate objects that you then have to keep track of. You will have to load 
-
-for example 
 
 ```{r, warning=FALSE}
 
 #creating an arbitary id variable to split back out. This could be anything, a date, a site name and point number, really anything
 
-gdat$id <- paste("A", 1:nrow(gdat),sep="_")
-
+gdat <- gdat %>% mutate(id=paste("A", 1:nrow(gdat),sep="_"))
 
 gathered <- gdat %>%  gather(id) %>% separate(id, into=c("letter","number"),sep="_")
 
-# this is also super helpful for looking at the top of a file
 
-gdat %>% head()
-
-gdat %>% nrow()
 ```
 
 ### seperate
@@ -319,9 +300,9 @@ gatheredn <- gdat %>% gather(id) %>% separate(id, into=c("letter","line","num"),
 
 head(gathered)
 head(gatheredn)
-
-# if you have a seperation character that you are willing to loose then using sep = "character" is the way to go, but that is not always the case
 ```
+
+if you have a seperation character that you are willing to loose then using sep = "character" is the way to go, but that is not always the case
 
 ### merging/joining data frames
 
